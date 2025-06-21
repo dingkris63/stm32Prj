@@ -4,7 +4,7 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR arm)
 
 # Toolchain paths (adjust if not in PATH)
-set(CMAKE_PREFIX_PATH "D:/Tool/ArmToolChain/14.2 rel1/bin")
+set(CMAKE_PREFIX_PATH "D:\\Tool\\ArmToolChain\\14.2 rel1\\bin\\")
 set(TOOLCHAIN_PREFIX "arm-none-eabi-")
 set(CMAKE_C_COMPILER   "${TOOLCHAIN_PREFIX}gcc")
 set(CMAKE_CXX_COMPILER "${TOOLCHAIN_PREFIX}g++")
@@ -14,11 +14,8 @@ set(CMAKE_OBJDUMP      "${TOOLCHAIN_PREFIX}objdump")
 set(CMAKE_SIZE         "${TOOLCHAIN_PREFIX}size")
 
 # Compiler/linker flags (optional, can also be in CMakeLists.txt)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mthumb-interwork -ffunction-sections -fdata-sections")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DSTM32F40_41xxx -DDUSE_FULL_ASSER")
+set(CMAKE_C_FLAGS "-mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffunction-sections -fdata-sections -O0 -g")
 
-set(CMAKE_C_FLAGS_DEBUG "-O0 -g")  # Debug-specific flags
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
 set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS} -x assembler-with-cpp")
 
@@ -41,6 +38,7 @@ add_compile_options(
     -g
     -O0
 )
+
 # Include directories (equivalent to -I in Keil)
 include_directories(
     ./CORE
@@ -53,14 +51,6 @@ include_directories(
     ./FWLIB/inc
 )
 
-# Macro definitions (equivalent to -D in Keil)
-add_definitions(
-    -D__UVISION_VERSION=541
-    -DSTM32F407xx
-    -DSTM32F40_41xxx
-    -DUSE_STDPERIPH_DRIVER
-)
-
 # Linker flags (Keil's --split_sections ¡ú GCC's garbage collection)
 add_link_options(
     -Wl,--gc-sections -T${CMAKE_SOURCE_DIR}/STM32F407ZGTx_FLASH.ld
@@ -70,6 +60,19 @@ add_link_options(
     -Wl,--gc-sections # Remove unused sections (--info unused)
     -Wl,--no-undefined # Strict linking (no undefined symbols) Equivalent to --strict(ARM KEIL)
 )
+
+# Macro definitions (equivalent to -D in Keil)
+add_definitions(
+    -D__UVISION_VERSION=541
+    -DSTM32F407xx
+    -DSTM32F40_41xxx
+    -D__CORTEX_M4
+    -DUSE_STDPERIPH_DRIVER
+    -DDUSE_FULL_ASSER
+    -D__CORE_CM4_SIMD_H__
+)
+
+
 set( SOURCE_FILE
     ./CORE/startup_stm32f407xx.s
     ./FWLIB/src/misc.c

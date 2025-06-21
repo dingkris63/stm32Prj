@@ -3,6 +3,7 @@
         "stm32f4xx_rcc.h": "c",
         "sys.h": "c",
         "misc.h": "c",
-        "stm32f4xx.h": "c"
+        "stm32f4xx.h": "c",
+        "cmsis_compiler.h": "c"
     }
 }
