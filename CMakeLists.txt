@@ -62,8 +62,13 @@ add_definitions(
 )
 
 # Linker flags (Keil's --split_sections ¡ú GCC's garbage collection)
-set(CMAKE_EXE_LINKER_FLAGS
-    "-Wl,--gc-sections -T${CMAKE_SOURCE_DIR}/STM32F407ZGTx_FLASH.ld"
+add_link_options(
+    -Wl,--gc-sections -T${CMAKE_SOURCE_DIR}/STM32F407ZGTx_FLASH.ld
+    -Wl,-Map=${CMAKE_BINARY_DIR}/sys.map # use arm-none-eabi-nm
+    -Wl,--cref # Cross-reference (--xref)
+    -Wl,--print-memory-usage # Summary sizes (--info summarysizes)
+    -Wl,--gc-sections # Remove unused sections (--info unused)
+    -Wl,--no-undefined # Strict linking (no undefined symbols) Equivalent to --strict(ARM KEIL)
 )
 set( SOURCE_FILE
     ./CORE/startup_stm32f407xx.s
@@ -112,11 +117,11 @@ set( SOURCE_FILE
     ./system_stm32f4xx.c
 )
 
-add_executable(${PROJECT_NAME}.elf
+add_executable(${TARGET}.elf
     ${SOURCE_FILE}
 )
 
-target_include_directories(${PROJECT_NAME}.elf PUBLIC
+target_include_directories(${TARGET}.elf PUBLIC
     ${CMAKE_SOURCE_DIR}
     public
     FWLIB/inc
@@ -127,14 +132,14 @@ target_include_directories(${PROJECT_NAME}.elf PUBLIC
     SYSTEM/usart
 )
 
-target_compile_options(${PROJECT_NAME}.elf PRIVATE
+target_compile_options(${TARGET}.elf PRIVATE
     -Wall   # Warnings
     -Og     # Optimization for debugging
 )
 
 # Generate HEX/BIN files (uses CMAKE_OBJCOPY from toolchain file)
-add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
-    COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${PROJECT_NAME}.hex
-    COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:${PROJECT_NAME}.elf> ${PROJECT_NAME}.bin
+add_custom_command(TARGET ${TARGET}.elf POST_BUILD
+    COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:${TARGET}.elf> ${TARGET}.hex
+    COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:${TARGET}.elf> ${TARGET}.bin
     COMMENT "Generating HEX and BIN files"
 )
