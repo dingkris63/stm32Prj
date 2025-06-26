@@ -1,6 +1,32 @@
 {
   "version": "2.0.0",
-  "inputs": [
+  "tasks": [
+    {
+      "label": "Target_config",
+      "type": "shell",
+      "command": "cmake.exe",
+      "args": [
+        "-B ${workspaceFolder}/build",
+        "-S ${workspaceFolder}",
+        "-G Ninja",
+        "-DAPP_NAME=${input:target}",
+      ],
+    },
+    {
+      "label": "Target_build",
+      "type": "shell",
+      "command": "cmake.exe",
+      "args": ["--build", "${workspaceFolder}/build"],
+    },
+    {
+      "label": "stm32 Build",
+      "type": "shell",
+      "dependsOn":["Target_config", "Target_build"],
+      "dependsOrder": "sequence",
+      "group": "build",
+    }
+  ],
+    "inputs": [
     {
       "id": "target",
       "type": "pickString",
@@ -10,27 +36,7 @@
         "led",
         "all"
       ],
-      "default": "beep"
+      "default": "led"
     }
   ],
-  "tasks": [
-    {
-      "label": "build-target",
-      "type": "shell",
-      "command": "cmake.exe",
-      "args": [
-        "-B", "${workspaceFolder}/build",
-        "-S", "${workspaceFolder}",
-        "-G", "Ninja",
-        "-DTARGET=${input:target}",
-        "&&",
-        "cmake.exe", "--build", "${workspaceFolder}/build"
-      ],
-      "group": {
-        "kind": "build",
-        "isDefault": true
-      },
-      "problemMatcher": ["$gcc"]
-    }
-  ]
 }

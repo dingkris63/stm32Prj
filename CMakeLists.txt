@@ -15,7 +15,6 @@ set(CMAKE_SIZE         "${TOOLCHAIN_PREFIX}size")
 
 # Compiler/linker flags (optional, can also be in CMakeLists.txt)
 set(CMAKE_C_FLAGS "-mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffunction-sections -fdata-sections -O0 -g")
-
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
 set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS} -x assembler-with-cpp")
 
@@ -72,7 +71,6 @@ add_definitions(
     -D__CORE_CM4_SIMD_H__
 )
 
-
 set( SOURCE_FILE
     ./CORE/startup_stm32f407xx.s
     ./FWLIB/src/misc.c
@@ -114,35 +112,20 @@ set( SOURCE_FILE
     ./HARDWARE/LED/led.c
     ./main.c
     ./stm32f4xx_it.c
-    ./SYSTEM/delay/delay.c
-    ./SYSTEM/sys/sys.c
-    ./SYSTEM/usart/usart.c
     ./system_stm32f4xx.c
 )
 
-add_executable(${TARGET}.elf
+add_executable(${APP_NAME}.elf
     ${SOURCE_FILE}
 )
 
-target_include_directories(${TARGET}.elf PUBLIC
+target_include_directories(${APP_NAME}.elf PRIVATE
     ${CMAKE_SOURCE_DIR}
     public
     FWLIB/inc
     CORE
-    HARDWARE/LED/
-    SYSTEM/delay
-    SYSTEM/sys
-    SYSTEM/usart
+    HARDWARE/LED
 )
 
-target_compile_options(${TARGET}.elf PRIVATE
-    -Wall   # Warnings
-    -Og     # Optimization for debugging
-)
-
-# Generate HEX/BIN files (uses CMAKE_OBJCOPY from toolchain file)
-add_custom_command(TARGET ${TARGET}.elf POST_BUILD
-    COMMAND ${CMAKE_OBJCOPY} -O ihex $<TARGET_FILE:${TARGET}.elf> ${TARGET}.hex
-    COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:${TARGET}.elf> ${TARGET}.bin
-    COMMENT "Generating HEX and BIN files"
-)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/OS)
+target_link_libraries(${APP_NAME}.elf PRIVATE os_lib)
