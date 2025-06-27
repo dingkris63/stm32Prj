@@ -18,6 +18,9 @@ set(CMAKE_C_FLAGS "-mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffunction
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
 set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS} -x assembler-with-cpp")
 
+set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 11)
+
 # Disable compiler checks for bare-metal
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
@@ -45,6 +48,7 @@ include_directories(
     ./SYSTEM/sys
     ./SYSTEM/usart
     ./USER
+    ./HARDWARE
     ./HARDWARE/LED
     ./HARDWARE/BEEP
     ./FWLIB/inc
@@ -58,6 +62,11 @@ add_link_options(
     -Wl,--print-memory-usage # Summary sizes (--info summarysizes)
     -Wl,--gc-sections # Remove unused sections (--info unused)
     -Wl,--no-undefined # Strict linking (no undefined symbols) Equivalent to --strict(ARM KEIL)
+    # Below are for C++
+    --specs=nano.specs
+    --specs=nosys.specs
+    -lstdc++
+    -lsupc++
 )
 
 # Macro definitions (equivalent to -D in Keil)
@@ -73,6 +82,7 @@ add_definitions(
 
 set( SOURCE_FILE
     ./CORE/startup_stm32f407xx.s
+    ./CORE/syscall.c
     ./FWLIB/src/misc.c
     ./FWLIB/src/stm32f4xx_adc.c
     ./FWLIB/src/stm32f4xx_can.c
@@ -109,6 +119,7 @@ set( SOURCE_FILE
     ./FWLIB/src/stm32f4xx_tim.c
     ./FWLIB/src/stm32f4xx_usart.c
     ./FWLIB/src/stm32f4xx_wwdg.c
+    ./HARDWARE/hwm_init.cpp
     ./HARDWARE/LED/led.c
     ./main.c
     ./stm32f4xx_it.c
