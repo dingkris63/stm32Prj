@@ -1,4 +1,9 @@
+## ARM GCC vs. GNU GCC
+
+ARM GCC lacks of some syscall, and need to implement it  by users. 
+
 ## gcc-competible startup arm file
+
 https://github.com/STMicroelectronics/cmsis-device-f4.git: Source/Templates/gcc/startup_stm32f407xx.s
 
 ## elf/bin/hex

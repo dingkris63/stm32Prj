@@ -13,6 +13,17 @@ set(CMAKE_OBJCOPY      "${TOOLCHAIN_PREFIX}objcopy")
 set(CMAKE_OBJDUMP      "${TOOLCHAIN_PREFIX}objdump")
 set(CMAKE_SIZE         "${TOOLCHAIN_PREFIX}size")
 
+set(CMAKE_C_STANDARD 99)      # C99
+set(CMAKE_CXX_STANDARD 11)    # C++11
+set(CMAKE_C_STANDARD_REQUIRED ON)  # Enforce strict compliance
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Skip compiler checks (they fail for cross-compilation and expected behavious)
+set(CMAKE_C_COMPILER_WORKS 1)
+set(CMAKE_CXX_COMPILER_WORKS 1)
+
+project(STM32F4 LANGUAGES C CXX ASM)
+
 
 # ARM Features Enable
 set(USB_DSP OFF)
@@ -22,13 +33,8 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-ab
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
 set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS} -x assembler-with-cpp")
 
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_CXX_STANDARD 11)
-
 # Disable compiler checks for bare-metal
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
-
-project(STM32F4 LANGUAGES C CXX ASM)
 
 # Enable compile_commands.json (optional)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -63,12 +69,6 @@ add_compile_options(
     -fdata-sections
     -g
     -Og
-
-    # # Below are for C++
-    # --specs=nano.specs
-    # --specs=nosys.specs
-    # -lstdc++
-    # -lsupc++
 )
 # Enable FPU, Enable DSP lib
 if(USE_DSP)
