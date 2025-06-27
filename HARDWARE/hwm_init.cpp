@@ -2,6 +2,7 @@
 #include "hwm_pub.h"
 #include "led.h"
 #include "task.h"
+#include "usart.h"
 #include <cstdint> // C++ version of stdint.h
 
 // C++ class implementation can go here
