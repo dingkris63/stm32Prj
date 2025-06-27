@@ -1,5 +1,5 @@
-#ifndef HWM_PUB_H
-#define HWM_PUB_H
+#ifndef __HWM_PUB_H
+#define __HWM_PUB_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,4 +17,4 @@ void hwm_init(void);
 // Optional C++ class declarations or additional functions
 #endif
 
-#endif /* HWM_PUB_H */
+#endif /* __HWM_PUB_H */

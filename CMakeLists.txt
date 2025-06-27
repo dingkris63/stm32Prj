@@ -13,8 +13,12 @@ set(CMAKE_OBJCOPY      "${TOOLCHAIN_PREFIX}objcopy")
 set(CMAKE_OBJDUMP      "${TOOLCHAIN_PREFIX}objdump")
 set(CMAKE_SIZE         "${TOOLCHAIN_PREFIX}size")
 
+
+# ARM Features Enable
+set(USB_DSP OFF)
+
 # Compiler/linker flags (optional, can also be in CMakeLists.txt)
-set(CMAKE_C_FLAGS "-mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -ffunction-sections -fdata-sections -O0 -g")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -D__FPU_PRESENT=1 -D__FPU_USED=1 -ffunction-sections -fdata-sections -O0 -g")
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
 set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS} -x assembler-with-cpp")
 
@@ -30,28 +34,57 @@ project(STM32F4 LANGUAGES C CXX ASM)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_compile_options(
-    -mcpu=cortex-m4
-    -mthumb
-    -mfpu=fpv4-sp-d16
-    -mfloat-abi=hard
+    # --- Core Architecture ---
+    -mcpu=cortex-m4 # Targets Cortex-M4 CPU (Enables M4-specific instructions (including FPU if present))
+    -mthumb # # Uses Thumb-2 instruction set (Required for all Cortex-M)
     -mthumb-interwork # ARM-Thumb interworking (optional, modern GCC handles it automatically)
+
+    # --- Preprocessor Macros ---
+    -DUSE_STDPERIPH_DRIVER # Uses ST's SPL (not HAL)
+    -DSTM32F407xx # # MCU model
+    -DSTM32F40_41xxx # # Legacy family define
+    -D__CORTEX_M4 # Defines Cortex-M4 core (Needed for CMSIS-Core (core_cm4.h))
+    -DUSE_FULL_ASSERT
+
+    # Enables single-precision FPU with 16 double-word registers
+    -mfpu=fpv4-sp-d16 #! Mandatory for hardware floating-point operations
+
+    # Uses hardware FPU instructions (not software emulation)
+    -mfloat-abi=hard #! Critical for performance (2-10x faster than softfp)
+
+    # Tells CMSIS the MCU has an FPU
+    -D__FPU_PRESENT=1 #! Required for CMSIS-Core (core_cm4.h)
+
+    # Ensures the compiler generates FPU instructions
+    $<$<COMPILE_LANGUAGE:C>:-D__FPU_PRESENT=1> #! Redundant with -mfloat-abi=hard (can be omitted)
+
+    # # --- Debug/Codegen --
     -ffunction-sections
     -fdata-sections
     -g
-    -O0
+    -Og
+
+    # # Below are for C++
+    # --specs=nano.specs
+    # --specs=nosys.specs
+    # -lstdc++
+    # -lsupc++
 )
+# Enable FPU, Enable DSP lib
+if(USE_DSP)
+    add_compile_options(
+        # Enables CMSIS-DSP library optimizations for Cortex-M4
+        $<$<COMPILE_LANGUAGE:C>:-DARM_MATH_CM4> #! Required for DSP functions (FFT, filters)
+        # Enables SIMD intrinsics (e.g., __SADD8, __QADD)
+        -D__CORE_CM4_SIMD_H__ #! Needed for parallel DSP operations
+    )
+endif()
 
 # Include directories (equivalent to -I in Keil)
 include_directories(
-    ./CORE
-    ./SYSTEM/delay
-    ./SYSTEM/sys
-    ./SYSTEM/usart
-    ./USER
-    ./HARDWARE
-    ./HARDWARE/LED
-    ./HARDWARE/BEEP
-    ./FWLIB/inc
+    ${CMAKE_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/CMSIS/core/inc
+    ${CMAKE_SOURCE_DIR}/CMSIS/system/stm32f4xx
 )
 
 # Linker flags (Keil's --split_sections ¡ú GCC's garbage collection)
@@ -62,68 +95,14 @@ add_link_options(
     -Wl,--print-memory-usage # Summary sizes (--info summarysizes)
     -Wl,--gc-sections # Remove unused sections (--info unused)
     -Wl,--no-undefined # Strict linking (no undefined symbols) Equivalent to --strict(ARM KEIL)
-    # Below are for C++
-    --specs=nano.specs
-    --specs=nosys.specs
-    -lstdc++
-    -lsupc++
-)
-
-# Macro definitions (equivalent to -D in Keil)
-add_definitions(
-    -D__UVISION_VERSION=541
-    -DSTM32F407xx
-    -DSTM32F40_41xxx
-    -D__CORTEX_M4
-    -DUSE_STDPERIPH_DRIVER
-    -DDUSE_FULL_ASSER
-    -D__CORE_CM4_SIMD_H__
 )
 
 set( SOURCE_FILE
-    ./CORE/startup_stm32f407xx.s
-    ./CORE/syscall.c
-    ./FWLIB/src/misc.c
-    ./FWLIB/src/stm32f4xx_adc.c
-    ./FWLIB/src/stm32f4xx_can.c
-    ./FWLIB/src/stm32f4xx_crc.c
-    ./FWLIB/src/stm32f4xx_cryp.c
-    ./FWLIB/src/stm32f4xx_cryp_aes.c
-    ./FWLIB/src/stm32f4xx_cryp_des.c
-    ./FWLIB/src/stm32f4xx_cryp_tdes.c
-    ./FWLIB/src/stm32f4xx_dac.c
-    ./FWLIB/src/stm32f4xx_dbgmcu.c
-    ./FWLIB/src/stm32f4xx_dcmi.c
-    ./FWLIB/src/stm32f4xx_dma.c
-    ./FWLIB/src/stm32f4xx_dma2d.c
-    ./FWLIB/src/stm32f4xx_exti.c
-    ./FWLIB/src/stm32f4xx_flash.c
-    ./FWLIB/src/stm32f4xx_flash_ramfunc.c
-    # ./FWLIB/src/stm32f4xx_fmc.c
-    ./FWLIB/src/stm32f4xx_fsmc.c
-    ./FWLIB/src/stm32f4xx_gpio.c
-    ./FWLIB/src/stm32f4xx_hash.c
-    ./FWLIB/src/stm32f4xx_hash_md5.c
-    ./FWLIB/src/stm32f4xx_hash_sha1.c
-    ./FWLIB/src/stm32f4xx_i2c.c
-    ./FWLIB/src/stm32f4xx_iwdg.c
-    ./FWLIB/src/stm32f4xx_ltdc.c
-    ./FWLIB/src/stm32f4xx_pwr.c
-    ./FWLIB/src/stm32f4xx_rcc.c
-    ./FWLIB/src/stm32f4xx_rng.c
-    ./FWLIB/src/stm32f4xx_rtc.c
-    ./FWLIB/src/stm32f4xx_sai.c
-    ./FWLIB/src/stm32f4xx_sdio.c
-    ./FWLIB/src/stm32f4xx_spi.c
-    ./FWLIB/src/stm32f4xx_syscfg.c
-    ./FWLIB/src/stm32f4xx_tim.c
-    ./FWLIB/src/stm32f4xx_usart.c
-    ./FWLIB/src/stm32f4xx_wwdg.c
-    ./HARDWARE/hwm_init.cpp
-    ./HARDWARE/LED/led.c
-    ./main.c
-    ./stm32f4xx_it.c
-    ./system_stm32f4xx.c
+    ${CMAKE_SOURCE_DIR}/CMSIS/system/stm32f4xx/stm32f4xx_it.c
+    ${CMAKE_SOURCE_DIR}/CMSIS/system/stm32f4xx/system_stm32f4xx.c
+    ${CMAKE_SOURCE_DIR}/CMSIS/system/stm32f4xx/startup/startup_stm32f407xx.s
+    ${CMAKE_SOURCE_DIR}/CMSIS/core/src/syscall.c
+    ${CMAKE_SOURCE_DIR}/main.c
 )
 
 add_executable(${APP_NAME}.elf
@@ -131,12 +110,17 @@ add_executable(${APP_NAME}.elf
 )
 
 target_include_directories(${APP_NAME}.elf PRIVATE
-    ${CMAKE_SOURCE_DIR}
-    public
-    FWLIB/inc
-    CORE
-    HARDWARE/LED
+    ${CMAKE_SOURCE_DIR}/HARDWARE/LED
 )
 
+if(USE_DSP)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/CMSIS/DSP_Lib)
+target_link_libraries(${APP_NAME}.elf PRIVATE dsp_lib)
+target_link_libraries(${APP_NAME}.elf PRIVATE arm_cortexM4lf_math) # lf' = Little Endian + FPU
+endif()
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/CMSIS/drivers)
+link_libraries(cmsis_driver) # For Peripherals Usage
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/OS)
-target_link_libraries(${APP_NAME}.elf PRIVATE os_lib)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/HARDWARE)
+target_link_libraries(${APP_NAME}.elf PRIVATE os_lib hw_lib)
