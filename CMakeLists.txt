@@ -124,3 +124,9 @@ link_libraries(cmsis_driver) # For Peripherals Usage
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/OS)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/HARDWARE)
 target_link_libraries(${APP_NAME}.elf PRIVATE os_lib hw_lib)
+
+
+add_custom_command(TARGET ${APP_NAME}.elf POST_BUILD
+    COMMAND ${CMAKE_OBJCOPY} -O binary ${APP_NAME}.elf ${APP_NAME}.bin
+    COMMAND ${CMAKE_OBJCOPY} -O ihex ${APP_NAME}.elf ${APP_NAME}.hex
+)
