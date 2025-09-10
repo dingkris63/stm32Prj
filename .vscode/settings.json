@@ -6,20 +6,22 @@
         "editor.semanticHighlighting.enabled": true,
         "editor.stickyScroll.defaultModel": "foldingProviderModel",
         "editor.suggest.insertMode": "replace",
-        "editor.formatOnSave": true
+        "editor.formatOnSave": false
     },
     "[c]": {
         "editor.wordBasedSuggestions": "off",
         "editor.semanticHighlighting.enabled": true,
         "editor.stickyScroll.defaultModel": "foldingProviderModel",
         "editor.suggest.insertMode": "replace",
-        "editor.formatOnSave": true
+        "editor.formatOnSave": false
     },
     "files.associations": {
         "cstdint": "c",
         "math_helper.h": "c",
         "string.h": "c",
         "core_cm4.h": "c",
-        "stat.h": "c"
+        "stat.h": "c",
+        "compare": "c",
+        "lcd.h": "c"
     }
 }

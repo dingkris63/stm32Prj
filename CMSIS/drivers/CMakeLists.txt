@@ -15,7 +15,7 @@ add_library(cmsis_driver STATIC
     ${CMAKE_CURRENT_SOURCE_DIR}/stm32f4xx/src/stm32f4xx_exti.c
     ${CMAKE_CURRENT_SOURCE_DIR}/stm32f4xx/src/stm32f4xx_flash.c
     ${CMAKE_CURRENT_SOURCE_DIR}/stm32f4xx/src/stm32f4xx_flash_ramfunc.c
-    # ${CMAKE_CURRENT_SOURCE_DIR}/stm32f4xx/src/stm32f4xx_fmc.c
+    # ${CMAKE_CURRENT_SOURCE_DIR}/stm32f4xx/src/stm32f4xx_fmc.c # USED FOR STM32F42XX
     ${CMAKE_CURRENT_SOURCE_DIR}/stm32f4xx/src/stm32f4xx_fsmc.c
     ${CMAKE_CURRENT_SOURCE_DIR}/stm32f4xx/src/stm32f4xx_gpio.c
     ${CMAKE_CURRENT_SOURCE_DIR}/stm32f4xx/src/stm32f4xx_hash.c

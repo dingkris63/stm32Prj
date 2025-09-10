@@ -20,9 +20,6 @@ void assert_failed(uint8_t *file, uint32_t line) {
 TaskHandle_t myTaks;
 
 int main() {
-  hwm_init();
-  while (1) {
-  }
-
-  return 0;
+    hwm_init();
+    return 0;
 }

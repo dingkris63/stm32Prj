@@ -29,7 +29,7 @@ project(STM32F4 LANGUAGES C CXX ASM)
 set(USB_DSP OFF)
 
 # Compiler/linker flags (optional, can also be in CMakeLists.txt)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -D__FPU_PRESENT=1 -D__FPU_USED=1 -ffunction-sections -fdata-sections -O0 -g")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -D__FPU_PRESENT=1 -D__FPU_USED=1 -ffunction-sections -fdata-sections -Og -g")
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
 set(CMAKE_ASM_FLAGS "${CMAKE_C_FLAGS} -x assembler-with-cpp")
 
@@ -82,9 +82,9 @@ endif()
 
 # Include directories (equivalent to -I in Keil)
 include_directories(
-    ${CMAKE_SOURCE_DIR}
-    ${CMAKE_SOURCE_DIR}/CMSIS/core/inc
     ${CMAKE_SOURCE_DIR}/CMSIS/system/stm32f4xx
+    ${CMAKE_SOURCE_DIR}/CMSIS/core/inc
+    ${CMAKE_SOURCE_DIR}
 )
 
 # Linker flags (Keil's --split_sections ¡ú GCC's garbage collection)
