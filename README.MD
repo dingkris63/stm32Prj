@@ -1,6 +1,79 @@
+## ARM TOOL CHAIN
+The ARM GNU Toolchain 14.2.Rel1 is a recent version released in October 2024. The best way to get the correct version for your system is from the official ARM website.
+
+Primary Download Source (Official ARM Website)
+The most reliable source is ARM's own developer portal:
+
+ARM Developer Downloads Page (Choose your OS and target):
+https://developer.arm.com/downloads/-/arm-gnu-toolchain-downloads
+
+On this page, you need to select:
+
+"Toolchain": ARM GNU Toolchain
+
+"Version": 14.2.Rel1
+
+"Architecture": Choose your target architecture. The most common choices are:
+
+AArch32 bare-metal target (arm-none-eabi) for Cortex-M/R microcontrollers.
+
+AArch64 bare-metal target (aarch64-none-elf) for Cortex-A application processors.
+
+AArch64 Linux target (aarch64-none-linux-gnu) for building Linux applications.
+
+"Host Platform": Select your operating system (Windows, Linux, macOS).
+
+Direct Download Links (For Reference)
+Below are direct links for the most common configurations. It is highly recommended to use the official page above, as ARM occasionally changes link structures.
+
+For Windows (x86_64)
+AArch32 Bare-metal (arm-none-eabi):
+https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-mingw-w64-i686-arm-none-eabi.zip
+
+AArch64 Bare-metal (aarch64-none-elf):
+https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-mingw-w64-i686-aarch64-none-elf.zip
+
+For Linux (x86_64)
+AArch32 Bare-metal (arm-none-eabi):
+https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-arm-none-eabi.tar.xz
+
+AArch64 Bare-metal (aarch64-none-elf):
+https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-x86_64-aarch64-none-elf.tar.xz
+
+For macOS (Apple Silicon / x86_64)
+AArch32 Bare-metal (arm-none-eabi):
+https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-darwin-x86_64-arm-none-eabi.tar.xz
+
+AArch64 Bare-metal (aarch64-none-elf):
+https://developer.arm.com/-/media/Files/downloads/gnu/14.2.rel1/binrel/arm-gnu-toolchain-14.2.rel1-darwin-x86_64-aarch64-none-elf.tar.xz
+
+Brief Installation & Setup Guide
+Download: Get the correct archive for your system.
+
+Extract: Unpack the archive to a directory of your choice. For example:
+
+Windows: C:\Tools\arm-gnu-toolchain\
+
+Linux/macOS: ~/opt/ or /usr/local/
+
+Add to System PATH: This is crucial for your system to find the tools.
+
+Add the bin folder from your extracted directory to your system's PATH environment variable.
+
+Example: If you extracted to C:\Tools\arm-gnu-toolchain\, add C:\Tools\arm-gnu-toolchain\bin to your PATH.
+
+Verify Installation: Open a new terminal or command prompt and run:
+
+bash
+arm-none-eabi-gcc --version
+# or
+aarch64-none-elf-gcc --version
+A successful installation will output version information, confirming the toolchain is ready to use:
+arm-none-eabi-gcc (Arm GNU Toolchain 14.2.Rel1) 14.2.1 20241010
+
 ## ARM GCC vs. GNU GCC
 
-ARM GCC lacks of some syscall, and need to implement it  by users. 
+ARM GCC lacks of some syscall, and need to implement it  by users.
 
 ## gcc-competible startup arm file
 
@@ -122,7 +195,7 @@ __isr_vector:
     **Placed at Flash start** (`>FLASH`).
 - Critical for successful booting. Let me know if you need further clarification!
 
-### text 
+### text
 
 #### **1. Section Structure**
 
@@ -256,10 +329,10 @@ _etext = 0x080014f4
 #### **Summary**
 
 This `.text` section definition:
-âœ… Ensures code is placed in Flash.
-âœ… Retains critical startup/termination code.
-âœ… Provides alignment and symbols for the startup script.
-âœ… Handles ARM/Thumb interworking (if needed).
+âœ? Ensures code is placed in Flash.
+âœ? Retains critical startup/termination code.
+âœ? Provides alignment and symbols for the startup script.
+âœ? Handles ARM/Thumb interworking (if needed).
 
 ##  .rodata
 
@@ -336,11 +409,11 @@ If your program crashes when accessing constants:
 ### **Common Pitfalls**
 
 1. **Missing `ALIGN`**
-   â†’ May cause **hard faults** on strict-alignment architectures (Cortex-M0/M3).
+   â†? May cause **hard faults** on strict-alignment architectures (Cortex-M0/M3).
 2. **Omitting `\*(.rodata\*)`**
-   â†’ **Lost constants** (compiler-generated `.rodata.*` sections wonâ€™t be included).
+   â†? **Lost constants** (compiler-generated `.rodata.*` sections wonâ€™t be included).
 3. **Incorrect Memory Region**
-   â†’ Placing `.rodata` in RAM wastes space (it canâ€™t be modified anyway).
+   â†? Placing `.rodata` in RAM wastes space (it canâ€™t be modified anyway).
 
 ------
 
